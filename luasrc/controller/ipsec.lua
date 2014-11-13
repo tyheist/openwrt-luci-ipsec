@@ -17,9 +17,14 @@ function index()
         alias("admin", "services", "ipsec", "policy"),
         _("IPSec"))
 
+    --entry({"admin", "services", "ipsec", "policy"},
+        --arcombine(cbi("ipsec/policy", {hideapplybtn=true, hidesavebtn=true, hideresetbtn=true}), cbi("ipsec/policy-add")),
+        --_("Policy")).leaf=true
+    
     entry({"admin", "services", "ipsec", "policy"},
-        arcombine(cbi("ipsec/policy", {hideapplybtn=true, hidesavebtn=true, hideresetbtn=true}), cbi("ipsec/policy-add")),
+        arcombine(cbi("ipsec/policy"), cbi("ipsec/policy-add")),
         _("Policy")).leaf=true
+
 
     entry({"admin", "services", "ipsec", "general"},
         cbi("ipsec/general"), _("General")).leaf = true

@@ -45,8 +45,8 @@ authby = s_phase1:option(ListValue, "authby", translate("Auth By"))
 authby.default = "secret"
 authby:value("secret", translate("Secret"))
 
-key = s_phase1:option(Value, "key", translate("PSK"))
-key.password = true
+psk = s_phase1:option(Value, "psk", translate("PSK"))
+psk.password = true
 
 leftid = s_phase1:option(Value, "leftid", translate("Local ID"))
 
@@ -72,8 +72,8 @@ s_phase2 = m:section(NamedSection, sid, "policy", translate("Phase 2"))
 s_phase2.anonymous = true
 s_phase2.addremove = false
 
-leftsubnet = s_phase2:option(Value, "leftsubnets", translate("Local Subnet"))
-rightsubnet = s_phase2:option(Value, "rightsubnets", translate("Remote Subnet"))
+leftsubnet = s_phase2:option(Value, "leftsubnet", translate("Local Subnet"))
+rightsubnet = s_phase2:option(Value, "rightsubnet", translate("Remote Subnet"))
 
 type = s_phase2:option(ListValue, "type", translate("Connection Type"))
 type.default = "tunnel"
