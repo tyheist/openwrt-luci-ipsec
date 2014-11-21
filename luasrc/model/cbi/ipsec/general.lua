@@ -16,10 +16,14 @@ m = Map("ipsec", translate("IPSec"))
 s = m:section(TypedSection, "setup", translate("General"))
 s.anonymous = true
 s.addremove = false
-link1 = s:option(Value, "ipsec0", translate("Link1"))
-link2 = s:option(Value, "ipsec1", translate("Link2"))
-link3 = s:option(Value, "ipsec2", translate("Link3"))
-link4 = s:option(Value, "ipsec3", translate("Link4"))
+
+enable = s:option(Flag, "enable", translate("Enable"))
+enable.rmempty = false
+
+plutodebug = s:option(MultiValue, "plutodebug", translate("Debug"))
+plutodebug:value("all", translate("all"))
+plutodebug:value("control", translate("control"))
+plutodebug:value("dpd", translate("dpd"))
 
 
 return m

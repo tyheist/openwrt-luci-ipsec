@@ -24,12 +24,16 @@ s_general.addremove = false
 
 name = s_general:option(Value, "name", translate("Name"))
 
-link = s_general:option(ListValue, "link", translate("Link"))
-link.default = "ipsec0"
-link:value("ipsec0", translate("ipsec0"))
-link:value("ipsec1", translate("ipsec1"))
-link:value("ipsec2", translate("ipsec2"))
-link:value("ipsec3", translate("ipsec3"))
+enable = s_general:option(Flag, "enable", translate"Enable")
+enable.rmempty = false
+enable.default = "1"
+
+left = s_general:option(Value, "left", translate("Local Interface"))
+left.template = "cbi/network_netlist"
+left.nocreate = true
+left.optional = false
+
+right = s_general:option(Value, "right", translate("Remote Address"))
 
 -- Phase1 Setting
 s_phase1 = m:section(NamedSection, sid, "policy", translate("Phase 1"))
@@ -54,13 +58,13 @@ rightid = s_phase1:option(Value, "rightid", translate("Remote ID"))
 
 auto = s_phase1:option(ListValue, "auto", translate("Auto Negotiate"))
 auto.default = "add"
-auto:value("add", translate("Yes"))
-auto:value("start", translate("No"))
+auto:value("add", translate("No"))
+auto:value("start", translate("Yes"))
 
 ike = s_phase1:option(ListValue, "ike", translate("IKE Algorithm"))
-ike.default = "des3-sha1"
-ike:value("des3-sha1", translate("3DES-SHA1"))
-ike:value("des3-md5", translate("3DES-MD5"))
+ike.default = "3des-sha1"
+ike:value("3des-sha1", translate("3DES-SHA1"))
+ike:value("3des-md5", translate("3DES-MD5"))
 ike:value("des-sha1", translate("DES-SHA1"))
 ike:value("des-md5", translate("DES-MD5"))
 
@@ -86,9 +90,9 @@ phase2:value("esp", translate("ESP"))
 phase2:value("ah", translate("AH"))
 
 phase2alg = s_phase2:option(ListValue, "phase2alg", translate("ESP Algorithm"))
-phase2alg.default = "des3-sha1"
-phase2alg:value("des3-sha1", translate("3DES-SHA1"))
-phase2alg:value("des3-md5", translate("3DES-MD5"))
+phase2alg.default = "3des-sha1"
+phase2alg:value("3des-sha1", translate("3DES-SHA1"))
+phase2alg:value("3des-md5", translate("3DES-MD5"))
 phase2alg:value("des-sha1", translate("DES-SHA1"))
 phase2alg:value("des-md5", translate("DES-MD5"))
 

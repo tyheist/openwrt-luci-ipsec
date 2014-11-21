@@ -1,0 +1,23 @@
+<%+cbi/valueheader%>
+<% uci = require("luci.model.uci").cursor() %>
+<% if uci:get("ipsec", section, "enable") == "0" then %>
+<span id="tunnel-<%=section%>-status"><em><%:disable%></em></span>
+<% else %>
+<span id="tunnel-<%=section%>-status"><em><%:Collecting data...%></em></span>
+<script type="text/javascript">//<![CDATA[
+    XHR.poll(5, '<%=luci.dispatcher.build_url("admin", "services", "ipsec", "status")%>/' + '<%=section%>', null, 
+            function(x, rv) {
+                var s = document.getElementById('tunnel-<%=section%>-status');
+                if (s && rv) {
+                    if (rv.status.status)
+                        s.innerHTML = rv.status.status;
+                    else
+                        s.innerHTML = "down";
+                } else {
+                    s.innerHTML = "down";
+                }
+            }
+    );
+//]]</script>
+<% end %>
+<%+cbi/valuefooter%>
