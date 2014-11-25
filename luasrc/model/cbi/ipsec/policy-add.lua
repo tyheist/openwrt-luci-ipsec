@@ -25,12 +25,28 @@ name = s_general:option(Value, "name", translate("Name"),
                         translate("The allowed characters are: <code>A-Z</code>, <code>a-z</code>, " ..
                                 "<code>0-9</code> and <code>_</code>"))
 name.rmempty = false                                
-name.datatype = "uciname"
+function name.validate(self, value)
+    if value and value:match("^[a-zA-Z0-9_]+$") then
+        local used = false
+        m.uci:foreach("ipsec", "policy", 
+            function(s)
+                if s['.name'] ~= sid and s.name == value then
+                    used = true
+                end
+            end)
+        if used then 
+            return nil, translate("Name had been used!")
+        end
+        return value
+    else
+        return nil, translate("Name field contain invalid values!")
+    end
+end
 
 -- enable
 enable = s_general:option(Flag, "enable", translate("Enable"))
 enable.rmempty = false
-enable.default = true
+enable.default = "1"
 
 -- left
 left = s_general:option(Value, "left", translate("Local Interface"))
@@ -42,7 +58,7 @@ function left.formvalue(...)
 end
 function left.validate(self, value)
     if value == "-" then
-        return nil, translate("Local interface required!")
+        return nil, translate("Local interface required fields have no value!")
     end
     return value
 end
@@ -52,7 +68,9 @@ right = s_general:option(Value, "right", translate("Remote Address"))
 right.rmempty = false
 right.datatype = "ip4addr"
 
--- Phase1 Setting
+--[[
+    Phase1 Setting
+--]]
 s_phase1 = m:section(NamedSection, sid, "policy", translate("Phase 1"))
 s_phase1.anonymous = true
 s_phase1.addremove = false
@@ -125,7 +143,9 @@ function ikelifetime.cfgvalue(self, section)
     end
 end
 
--- phase2 Setting
+--[[
+    phase2 Setting
+--]]
 s_phase2 = m:section(NamedSection, sid, "policy", translate("Phase 2"))
 s_phase2.anonymous = true
 s_phase2.addremove = false
@@ -222,5 +242,36 @@ function keylife.cfgvalue(self, section)
         return nil
     end
 end
+
+-- dpdenable
+dpdenable = s_phase2:option(Flag, "dpdenable", translate("DPD Enable"))
+dpdenable.default = "0"
+dpdenable.rmempty = false
+
+-- dpddelay
+dpddelay = s_phase2:option(Value, "dpddelay", translate("DPD Delay"),
+                        translate("Unit: second, Range: <code>1-3600</code>, Default: <code>30</code>"))
+dpddelay.default = 30
+dpddelay.datatype = "range(1, 3600)"
+dpddelay.rmempty = true
+dpddelay:depends("dpdenable", "1")
+
+-- dpdtimeout
+dpdtimeout = s_phase2:option(Value, "dpdtimeout", translate("DPD Timeout"),
+                        translate("Unit: second, Range: <code>1-28800</code>, Default: <code>120</code>"))
+dpdtimeout.default = 120
+dpdtimeout.datatype = "range(1, 28800)"
+dpdtimeout.rmempty = true
+dpdtimeout:depends("dpdenable", "1")
+
+-- dpdaction
+dpdaction = s_phase2:option(ListValue, "dpdaction", translate("DPD Action"),
+                    translate("Default: <code>restart_by_peer</code>"))
+dpdaction.default = "restart_by_peer"
+dpdaction:value("hold", translate("Hold"))
+dpdaction:value("clear", translate("Clear"))
+dpdaction:value("restart", translate("Restart"))
+dpdaction:value("restart_by_peer", translate("Restart_by_peer"))
+dpdaction:depends("dpdenable", "1")
 
 return m
