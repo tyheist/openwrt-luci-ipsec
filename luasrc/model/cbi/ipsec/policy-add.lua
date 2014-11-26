@@ -15,7 +15,9 @@ local sid = arg[1]
 m = Map("ipsec", translate("IPSec - Policy Settings"))
 m.redirect = luci.dispatcher.build_url("admin/services/ipsec")
 
+--[[
 -- General Setting
+--]]
 s_general = m:section(NamedSection, sid, "policy", translate("General"))
 s_general.anonymous = true
 s_general.addremove = false
@@ -64,38 +66,65 @@ function left.validate(self, value)
 end
 
 -- right
-right = s_general:option(Value, "right", translate("Remote Address"))
+right = s_general:option(Value, "right", translate("Remote Address"),
+                    translate("IPv4 Address, <code>A.B.C.D</code>"))
 right.rmempty = false
 right.datatype = "ip4addr"
 
 --[[
-    Phase1 Setting
+-- Phase1 Setting
 --]]
 s_phase1 = m:section(NamedSection, sid, "policy", translate("Phase 1"))
 s_phase1.anonymous = true
 s_phase1.addremove = false
 
+-- mode
 mode = s_phase1:option(ListValue, "aggrmode", translate("Mode"))
 mode.default = "no"
 mode:value("yes", translate("Aggrmode"))
 mode:value("no", translate("Main"))
 
+-- authby
 authby = s_phase1:option(ListValue, "authby", translate("Auth By"))
 authby.default = "secret"
 authby:value("secret", translate("Secret"))
 
+-- psk
 psk = s_phase1:option(Value, "psk", translate("PSK"))
 psk.rmempty = false
 psk.password = true
 
+-- leftid
 leftid = s_phase1:option(Value, "leftid", translate("Local ID"),
-                        translate("ID expressed as IP address e.g. <code>10.10.10.10</code>,</br>" ..
+                        translate("ID expressed as IPv4 address e.g. <code>10.10.10.10</code>,</br>" ..
                         "or as fully-qualified domain name preceded by @ e.g. <code>@domain</code>"))
+leftid.rmempty = false                        
+function leftid.validate(self, value)
+    local ip = require "luci.ip"
+    if (ip and ip.IPv4(value)) or (value:match("^@%w+")) then
+        return value
+    else
+        return nil, translate("Local ID field contain invalid values!")
+    end
+    return value
+end
 
+-- rightid                        
 rightid = s_phase1:option(Value, "rightid", translate("Remote ID"),
-                        translate("ID expressed as IP address e.g. <code>10.10.10.10</code>,</br>" ..
+                        translate("ID expressed as IPv4 address e.g. <code>10.10.10.10</code>,</br>" ..
                         "or as fully-qualified domain name preceded by @ e.g. <code>@domain</code>"))
+rightid.rmempty = false                        
+function rightid.validate(sefl, value)
+    local ip = require "luci.ip"
+    if (ip and ip.IPv4(value)) or (value:match("^@%w+")) then
+        return value
+    else
+        return nil, translate("Remote ID field contain invalid values!")
+    end
+    return value
+end
 
+-- auto                        
 auto = s_phase1:option(ListValue, "auto", translate("Auto Negotiate"))
 auto.default = "add"
 auto:value("add", translate("No"))
@@ -144,7 +173,7 @@ function ikelifetime.cfgvalue(self, section)
 end
 
 --[[
-    phase2 Setting
+-- phase2 Setting
 --]]
 s_phase2 = m:section(NamedSection, sid, "policy", translate("Phase 2"))
 s_phase2.anonymous = true
@@ -192,7 +221,9 @@ type.default = "tunnel"
 type:value("tunnel", translate("Tunnel"))
 type:value("transport", translate("Transport"))
 
+--[[
 -- phase2
+--]]
 phase2 = s_phase2:option(ListValue, "phase2", translate("SA Type"))
 phase2.default = "esp"
 phase2:value("esp", translate("ESP"))
